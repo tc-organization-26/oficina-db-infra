@@ -1,0 +1,7 @@
+aws_region          = "us-east-1"
+project_name        = "oficina"
+environment         = "dev"
+instance_class      = "db.t3.micro"
+multi_az            = false
+deletion_protection = true
+
