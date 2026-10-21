@@ -6,13 +6,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-  id-token: write
 env:
   TF_IN_AUTOMATION: "true"
   TF_VAR_aws_region: ${{ vars.AWS_REGION || 'us-east-1' }}
-  TF_VAR_environment: ${{ github.ref_name == 'main' && 'prod' || 'hom' }}
+  TF_VAR_environment: ${{ (github.ref_name == 'main' || github.ref_name == 'master') && 'prod' || 'hom' }}
 jobs:
-  terraform:
+  validar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,15 +20,53 @@ jobs:
       - run: terraform fmt -check -recursive
       - run: terraform init -backend=false
       - run: terraform validate
-      - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: aws-actions/configure-aws-credentials@v6.3.0
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-      - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        run: terraform init -reconfigure -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" -backend-config="key=oficina/database/${TF_VAR_environment}.tfstate" -backend-config="region=${{ vars.AWS_REGION || 'us-east-1' }}" -backend-config="encrypt=true" -backend-config="use_lockfile=true"
-      - if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        run: terraform plan -out=tfplan
-      - if: github.event_name == 'push'
-        run: terraform apply -auto-approve tfplan
 
+  planejar-pr:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'homologacao' &&
+      github.event.pull_request.base.ref == 'main'
+    needs: validar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "1.15.9" }
+      - uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - run: terraform init -reconfigure -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" -backend-config="key=oficina/database/${TF_VAR_environment}.tfstate" -backend-config="region=${{ vars.AWS_REGION || 'us-east-1' }}" -backend-config="encrypt=true" -backend-config="use_lockfile=true"
+      - run: terraform plan
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: validar
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ (github.ref_name == 'main' || github.ref_name == 'master') && 'producao' || 'homologacao' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: "1.15.9" }
+      - uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+      - run: terraform init -reconfigure -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" -backend-config="key=oficina/database/${TF_VAR_environment}.tfstate" -backend-config="region=${{ vars.AWS_REGION || 'us-east-1' }}" -backend-config="encrypt=true" -backend-config="use_lockfile=true"
+      - run: terraform plan -out=tfplan
+      - run: terraform apply -auto-approve tfplan
+      - name: Resumir deploy
+        shell: bash
+        run: |
+          {
+            echo "## Banco publicado"
+            echo "- Ambiente: ${TF_VAR_environment}"
+            echo "- Endpoint: privado; consulte o output database_endpoint ou o Parameter Store."
+            echo "- Deployments: https://github.com/${GITHUB_REPOSITORY}/deployments"
+          } >> "$GITHUB_STEP_SUMMARY"
