@@ -37,6 +37,22 @@ AWS_SESSION_TOKEN
 
 Configure-os com acesso aos quatro repositórios. Eles são temporários e precisam ser atualizados quando a sessão do Lab expirar.
 
+## Promoção automática entre branches
+
+O workflow usa o `GITHUB_TOKEN` fornecido automaticamente pelo GitHub. Em **Settings → Actions → General → Workflow permissions**, selecione **Read and write permissions** e habilite **Allow GitHub Actions to create and approve pull requests**. Não é necessário cadastrar outro secret.
+
+O fluxo de promoção é:
+
+```text
+push em fase-3
+  -> abre ou atualiza PR de fase-3 para homologacao
+  -> merge manual após os checks
+  -> abre ou atualiza PR de homologacao para main
+  -> merge manual após os checks
+```
+
+Se `homologacao` ainda não existir, o workflow a cria a partir de `main`. Proteja `homologacao` e `main` contra push direto e exija Pull Request para merge.
+
 ## Execução
 
 Pelo GitHub: **Actions → CI/CD - RDS → Run workflow**, selecionando `fase-3` para homologação.
