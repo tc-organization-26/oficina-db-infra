@@ -199,7 +199,8 @@ O workflow `.github/workflows/terraform.yml` autentica com os Organization secre
 
 | Evento | Comportamento |
 | --- | --- |
-| Pull request | `fmt`, `validate` e `plan` para PRs do próprio repositório |
+| Pull request de `fase-3` para `homologacao` | Apenas `fmt` e `validate`; não executa `terraform plan` |
+| Pull request de `homologacao` para `main` | `fmt`, `validate` e `terraform plan` de produção |
 | Push em `homologacao` | Aplica o ambiente `hom` |
 | Push em `main` ou `master` | Aplica o ambiente `prod` |
 | `workflow_dispatch` | Execução manual na branch selecionada |
