@@ -4,6 +4,27 @@ Infraestrutura Terraform responsável pelo banco PostgreSQL gerenciado da plataf
 
 Ele não contém migrations SQL nem código da aplicação. O schema de negócio é versionado pelo Flyway no repositório `gestao-oficina-tc-1`.
 
+## Links de deploy e documentação
+
+- [Deployments ativos](https://github.com/tc-organization-26/oficina-db-infra/deployments).
+- [Pipeline Terraform](https://github.com/tc-organization-26/oficina-db-infra/actions/workflows/terraform.yml).
+- Swagger/OpenAPI: não se aplica a este repositório, pois ele não expõe API. Consulte a [documentação da Oficina API](https://github.com/tc-organization-26/gestao-oficina-tc-1#links-de-deploy-e-documentação-da-api).
+
+O RDS não possui link público de acesso: o endpoint é privado por definição e pode ser consultado com `terraform output -raw database_endpoint` ou no Parameter Store. O link acima registra os ambientes efetivamente implantados sem expor credenciais ou conectividade do banco.
+
+## Tecnologias utilizadas
+
+- Terraform e provider AWS;
+- Amazon RDS for PostgreSQL;
+- Amazon VPC e Security Groups;
+- AWS Secrets Manager e Systems Manager Parameter Store;
+- Amazon S3 para state remoto;
+- GitHub Actions com autenticação OIDC.
+
+## Dockerfile
+
+Não se aplica. O banco é provisionado como serviço gerenciado Amazon RDS; este repositório não constrói nem executa imagens de contêiner.
+
 ## Responsabilidades deste repositório
 
 - consumir a VPC, as sub-redes privadas e o Security Group do EKS publicados pelo repositório Kubernetes;
