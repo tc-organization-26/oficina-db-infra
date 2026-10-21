@@ -4,6 +4,8 @@ Infraestrutura Terraform responsável pelo banco PostgreSQL gerenciado da plataf
 
 Ele não contém migrations SQL nem código da aplicação. O schema de negócio é versionado pelo Flyway no repositório `gestao-oficina-tc-1`.
 
+> Para o ambiente educacional, consulte [Execução no AWS Lab](docs/EXECUCAO-LAB.md). O pipeline usa credenciais temporárias compartilhadas pela organização, e não OIDC.
+
 ## Links de deploy e documentação
 
 - [Deployments ativos](https://github.com/tc-organization-26/oficina-db-infra/deployments).
@@ -19,7 +21,7 @@ O RDS não possui link público de acesso: o endpoint é privado por definição
 - Amazon VPC e Security Groups;
 - AWS Secrets Manager e Systems Manager Parameter Store;
 - Amazon S3 para state remoto;
-- GitHub Actions com autenticação OIDC.
+- GitHub Actions com credenciais temporárias do AWS Lab.
 
 ## Dockerfile
 
@@ -181,7 +183,7 @@ As credenciais AWS devem possuir acesso ao backend S3, RDS, EC2 Security Groups,
 
 ## CI/CD
 
-O workflow `.github/workflows/terraform.yml` autentica na AWS por OIDC.
+O workflow `.github/workflows/terraform.yml` autentica com os Organization secrets temporários do AWS Lab.
 
 | Evento | Comportamento |
 | --- | --- |
@@ -192,9 +194,14 @@ O workflow `.github/workflows/terraform.yml` autentica na AWS por OIDC.
 
 Variables esperadas, normalmente configuradas pelo bootstrap:
 
-- `AWS_ROLE_ARN`
 - `AWS_REGION`
 - `TF_STATE_BUCKET`
+
+Organization secrets esperados:
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_SESSION_TOKEN`
 
 Este repositório não precisa receber senha do banco como secret do GitHub: o RDS gera e mantém a senha no Secrets Manager.
 
