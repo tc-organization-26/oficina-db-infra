@@ -74,7 +74,7 @@ gh run watch ID `
   --exit-status
 ```
 
-Branches `fase-3` e `homologacao` usam `hom`; `main` e `master` usam `prod`. O state fica em:
+Branches `fase-3` e `homologacao` usam `hom`; `main` usa `prod`. O state fica em:
 
 ```text
 s3://TF_STATE_BUCKET/oficina/database/hom.tfstate
