@@ -6,7 +6,7 @@ Ele não contém migrations SQL nem código da aplicação. O schema de negócio
 
 > Para o ambiente educacional, consulte [Execução no AWS Lab](docs/EXECUCAO-LAB.md). O pipeline usa credenciais temporárias compartilhadas pela organização, e não OIDC.
 
-## Fluxo de branches e promoção
+## Fluxo de branches e promoção 
 
 O workflow `.github/workflows/promote.yml` usa o `GITHUB_TOKEN` nativo do GitHub para abrir os Pull Requests de promoção:
 
