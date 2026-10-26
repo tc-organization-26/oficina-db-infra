@@ -13,7 +13,7 @@ O workflow `.github/workflows/promote.yml` usa o `GITHUB_TOKEN` nativo do GitHub
 ```text
 push em fase-3 → PR para homologacao
 merge em homologacao → PR para main
-merge em main → implantação em produção
+merge em main → implantação em produção 
 ```
 
 Os merges são manuais e devem ocorrer somente depois da aprovação e dos checks. Em **Settings → Actions → General → Workflow permissions**, mantenha **Read and write permissions** e **Allow GitHub Actions to create and approve pull requests** habilitados. Nenhum secret adicional é necessário para criar os PRs.
