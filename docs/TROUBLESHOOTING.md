@@ -36,7 +36,7 @@ Para produção, altere o ambiente para `prod` e confira a conta antes de prosse
 
 Renove juntos `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` e `AWS_SESSION_TOKEN` na organização (com acesso ao repositório) ou nos Repository secrets. Atualize também o terminal utilizado. Verifique espaços acidentais e relógio da máquina se houver erro de assinatura/tempo. Repita `aws sts get-caller-identity`; ele precisa identificar a conta esperada antes de um novo deploy.
 
-Se o erro persistir no Actions, confira se um secret do Environment está sobrescrevendo o valor renovado da organização. Reinicie a execução após corrigir; não é necessário refazer o bootstrap só para renovar credenciais.
+Se o erro persistir no Actions, confira se um Repository secret está sobrescrevendo o valor renovado da organização ou se há um secret de Environment sobrescrevendo a configuração compartilhada. Reinicie a execução após corrigir; não é necessário refazer o bootstrap só para renovar credenciais.
 
 ### ParameterNotFound, ResourceNotFound ou recursos do ambiente errado
 
