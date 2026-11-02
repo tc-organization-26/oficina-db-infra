@@ -14,8 +14,8 @@ Os guias abaixo complementam este README com instruções de execução, configu
 
 **Guias e documentos complementares**
 
-- [Instalação das ferramentas](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/INSTALACAO-FERRAMENTAS.md) — instalar ferramentas e conferir o ambiente.
-- [Conta AWS comum](https://github.com/tc-organization-26/oficina-k8s-infra/blob/HEAD/docs/CONTA-AWS-COMUM.md) — preparar IAM, OIDC e adaptar a execução fora do Academy.
+- [Instalação das ferramentas](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/INSTALACAO-FERRAMENTAS.md) — instalar ferramentas e conferir o ambiente.
+- [Conta AWS comum](https://github.com/tc-organization-26/oficina-k8s-infra/blob/main/docs/CONTA-AWS-COMUM.md) — preparar IAM, OIDC e adaptar a execução fora do Academy.
 - [Validação local e execução manual](docs/VALIDACAO-E-EXECUCAO-MANUAL.md) — validação e execução pelo terminal.
 - [Execução no laboratório AWS](docs/EXECUCAO-LAB-AWS.md) — checklist GitHub, dependências, deploy e destroy.
 - [Tecnologias e versões](docs/VERSOES.md) — tecnologias, ferramentas, versões e fontes.
@@ -113,11 +113,11 @@ flowchart LR
     terraform -.-> ssm["SSM · endpoint, porta, nome, SG e ARN do secret"]
 ```
 
-Consulte os [recursos principais](#recursos-principais) deste componente. A [arquitetura integrada da aplicação](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/ARQUITETURA-SOLUCAO.md) reúne os quatro projetos e suas sequências.
+Consulte os [recursos principais](#recursos-principais) deste componente. A [arquitetura integrada da aplicação](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/ARQUITETURA-SOLUCAO.md) reúne os quatro projetos e suas sequências.
 
 ## Arquitetura provisionada
 
-A API no EKS e a Lambda de login acessam o mesmo RDS privado por regras de Security Group distintas. O Secrets Manager mantém a credencial gerenciada. A API executa o Flyway; a Lambda consulta `cliente` para autenticação. A [visão de componentes](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/ARQUITETURA-SOLUCAO.md#diagrama-de-componentes-da-aplicação) mostra essas conexões.
+A API no EKS e a Lambda de login acessam o mesmo RDS privado por regras de Security Group distintas. O Secrets Manager mantém a credencial gerenciada. A API executa o Flyway; a Lambda consulta `cliente` para autenticação. A [visão de componentes](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/ARQUITETURA-SOLUCAO.md#diagrama-de-componentes-da-aplicação) mostra essas conexões.
 
 O banco é um serviço gerenciado RDS; não utiliza contêiner, Dockerfile ou PVC Kubernetes.
 
@@ -133,7 +133,7 @@ O banco é um serviço gerenciado RDS; não utiliza contêiner, Dockerfile ou PV
 | Pagamento e entrega | Persiste confirmação interna de pagamento e datas/status do atendimento |
 | Acompanhamento | Disponibiliza dados para consulta individual, histórico de status e tempo médio de execução |
 
-As tabelas e as regras não são criadas pelo Terraform deste componente. O [modelo relacional](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/modelo-relacional/README.md) documenta schema, relações e migrations, e o [fluxo de atendimento](https://github.com/tc-organization-26/gestao-oficina-tc-1#fluxo-de-atendimento) descreve o uso pela oficina.
+As tabelas e as regras não são criadas pelo Terraform deste componente. O [modelo relacional](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/modelo-relacional/README.md) documenta schema, relações e migrations, e o [fluxo de atendimento](https://github.com/tc-organization-26/gestao-oficina-tc-1#fluxo-de-atendimento) descreve o uso pela oficina.
 
 ## Disponibilidade e recuperação
 
@@ -184,7 +184,7 @@ Principais características da instância:
 Este repositório provisiona infraestrutura e não expõe uma API de negócio própria. A documentação e as requisições da aplicação consumidora estão disponíveis em:
 
 - [Swagger local da Oficina API](http://localhost:8081/swagger-ui/index.html), após iniciar a aplicação.
-- [Collection Insomnia](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/src/main/resources/insomnia/collection.yaml): inclui o login por CPF da Lambda (`POST /auth/login`) e os fluxos de negócio da API.
+- [Collection Insomnia](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/src/main/resources/insomnia/collection.yaml): inclui o login por CPF da Lambda (`POST /auth/login`) e os fluxos de negócio da API.
 
 ## Estrutura do repositório
 
@@ -267,7 +267,7 @@ O backend usa criptografia e locking nativo por `.tflock`.
 
 O Terraform não executa migrations. Quando a aplicação inicia, o Flyway lê os scripts do repositório `gestao-oficina-tc-1` e aplica as versões pendentes no RDS.
 
-As [variáveis e migrations da API](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/README.md#banco-e-migrations) documentam a configuração do Flyway. O primeiro startup precisa terminar antes de usar o login por CPF.
+As [variáveis e migrations da API](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/README.md#banco-e-migrations) documentam a configuração do Flyway. O primeiro startup precisa terminar antes de usar o login por CPF.
 
 ## Validação após o deploy
 
@@ -280,14 +280,14 @@ Teste a conexão a partir de um workload autorizado na VPC/EKS. Depois do startu
 1. Confirme a instância disponível, os parâmetros SSM e o ARN do secret conforme a [validação do banco](docs/EXECUCAO-LAB-AWS.md#validar-o-banco).
 2. Implante a API e confirme a conclusão das migrations Flyway e o readiness com `status=UP`.
 3. Teste o login por CPF pela Lambda após o seed de cliente ativo.
-4. Execute o [roteiro de validação do atendimento](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/VALIDACAO-FLUXO.md), consultando a OS criada e sua evolução até a entrega.
+4. Execute o [roteiro de validação do atendimento](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/VALIDACAO-FLUXO.md), consultando a OS criada e sua evolução até a entrega.
 5. Para validar persistência após um novo rollout da API, consulte pelo ID uma ordem criada anteriormente; recriar Pods não deve apagar os dados do RDS.
 
 Mantenha os testes de recuperação e remoção em ambiente apropriado e use o mesmo state do componente. O RDS não precisa receber acesso público para validar as operações da aplicação.
 
 ## Observabilidade
 
-Eventos e métricas RDS ajudam a investigar disponibilidade, conexões, CPU e armazenamento. API e Lambda registram falhas PostgreSQL nos próprios logs/traces; a configuração Datadog pertence à aplicação. Consulte o [diagnóstico de conectividade e credenciais](docs/TROUBLESHOOTING.md#conectividade-e-credencial-gerenciada) e o [guia de observabilidade da API](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/OBSERVABILIDADE.md).
+Eventos e métricas RDS ajudam a investigar disponibilidade, conexões, CPU e armazenamento. API e Lambda registram falhas PostgreSQL nos próprios logs/traces; a configuração Datadog pertence à aplicação. Consulte o [diagnóstico de conectividade e credenciais](docs/TROUBLESHOOTING.md#conectividade-e-credencial-gerenciada) e o [guia de observabilidade da API](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/OBSERVABILIDADE.md).
 
 ## Executando destroy
 

@@ -4,9 +4,9 @@
 
 ## Troubleshooting de outros repositórios da solução
 
-- [Aplicação: Docker, Java, API, Pods e Datadog](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/TROUBLESHOOTING.md).
-- [Plataforma: bootstrap, EKS, rede e entrada HTTP](https://github.com/tc-organization-26/oficina-k8s-infra/blob/HEAD/docs/TROUBLESHOOTING.md).
-- [Autenticação: Python, Lambda, CPF e Authorizer](https://github.com/tc-organization-26/oficina-auth-lambda/blob/HEAD/docs/TROUBLESHOOTING.md).
+- [Aplicação: Docker, Java, API, Pods e Datadog](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/TROUBLESHOOTING.md).
+- [Plataforma: bootstrap, EKS, rede e entrada HTTP](https://github.com/tc-organization-26/oficina-k8s-infra/blob/main/docs/TROUBLESHOOTING.md).
+- [Autenticação: Python, Lambda, CPF e Authorizer](https://github.com/tc-organization-26/oficina-auth-lambda/blob/main/docs/TROUBLESHOOTING.md).
 
 Este guia parte do sintoma, indica o que conferir e orienta a correção. Execute os comandos na raiz deste repositório, salvo indicação diferente. Cada bloco é um procedimento de diagnóstico independente; os exemplos usam PowerShell.
 
@@ -182,7 +182,7 @@ Este repositório cria a instância, não as tabelas de negócio. Aguarde o prim
 
 ### Flyway, seed ou histórico de status incompatíveis
 
-O schema pertence à API. Confira ambiente/JDBC, versões aplicadas e alterações em migrations já executadas no [guia da aplicação](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/TROUBLESHOOTING.md#postgresql-e-flyway). A V3 prepara o cliente de teste; a V4 não calcula tempos retroativos. Restaurar um banco antigo exige deixar o Flyway aplicar as migrations pendentes antes de testar os consumidores.
+O schema pertence à API. Confira ambiente/JDBC, versões aplicadas e alterações em migrations já executadas no [guia da aplicação](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/main/docs/TROUBLESHOOTING.md#postgresql-e-flyway). A V3 prepara o cliente de teste; a V4 não calcula tempos retroativos. Restaurar um banco antigo exige deixar o Flyway aplicar as migrations pendentes antes de testar os consumidores.
 
 ### Lentidão, conexões esgotadas ou armazenamento baixo
 
