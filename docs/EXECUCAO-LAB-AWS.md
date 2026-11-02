@@ -98,7 +98,7 @@ Espere o RDS em `available`. Com o backend inicializado localmente, use `terrafo
 
 Consulte o [troubleshooting deste repositório](TROUBLESHOOTING.md) para credenciais, branches, dependências e falhas do componente.
 
-## Encerramento
+## Executando destroy
 
 O RDS tem `deletion_protection=true` e snapshot final obrigatório. Para remoção intencional, confira backup, aplique `deletion_protection=false`, revise `terraform plan -destroy` e execute `terraform destroy` usando o mesmo backend/ambiente. Verifique o snapshot `oficina-ENV-postgres-final`; um snapshot anterior com esse nome exige tratamento antes de outra destruição. Remova a autenticação antes do banco e o banco antes da VPC. Snapshots preservados também podem manter custos.
 

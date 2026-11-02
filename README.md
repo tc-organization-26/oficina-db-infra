@@ -17,7 +17,7 @@ Os guias abaixo complementam este README com instruções de execução, configu
 - [Instalação das ferramentas](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/INSTALACAO-FERRAMENTAS.md) — instalar ferramentas e conferir o ambiente.
 - [Conta AWS comum](https://github.com/tc-organization-26/oficina-k8s-infra/blob/HEAD/docs/CONTA-AWS-COMUM.md) — preparar IAM, OIDC e adaptar a execução fora do Academy.
 - [Validação local e execução manual](docs/VALIDACAO-E-EXECUCAO-MANUAL.md) — validação e execução pelo terminal.
-- [Execução no laboratório AWS](docs/EXECUCAO-LAB-AWS.md) — checklist GitHub, dependências, deploy e encerramento.
+- [Execução no laboratório AWS](docs/EXECUCAO-LAB-AWS.md) — checklist GitHub, dependências, deploy e destroy.
 - [Tecnologias e versões](docs/VERSOES.md) — tecnologias, ferramentas, versões e fontes.
 - [Troubleshooting](docs/TROUBLESHOOTING.md) — diagnóstico por assunto e recuperação.
 
@@ -135,7 +135,7 @@ O padrão `multi_az=false` cria a instância sem standby Multi-AZ. O subnet grou
 
 O armazenamento começa em 20 GiB e pode crescer até 100 GiB por padrão. Esse crescimento não substitui o dimensionamento da classe da instância, das conexões e das consultas. Para maior disponibilidade, avalie `multi_az=true` e a classe adequada ao ambiente, conforme o [exemplo de configuração](#variáveis-terraform).
 
-Backups automáticos têm retenção padrão de sete dias. A proteção contra exclusão fica habilitada e a remoção intencional exige tratar o snapshot final, seguindo o [guia de encerramento](docs/EXECUCAO-LAB-AWS.md#encerramento). Backups oferecem recuperação de dados; não equivalem a failover. O [troubleshooting](docs/TROUBLESHOOTING.md) orienta diagnóstico e recuperação, que devem ser validados para o ambiente utilizado.
+Backups automáticos têm retenção padrão de sete dias. A proteção contra exclusão fica habilitada e a remoção intencional exige tratar o snapshot final, seguindo o [guia de destroy](docs/EXECUCAO-LAB-AWS.md#executando-destroy). Backups oferecem recuperação de dados; não equivalem a failover. O [troubleshooting](docs/TROUBLESHOOTING.md) orienta diagnóstico e recuperação, que devem ser validados para o ambiente utilizado.
 
 ## Caminho da implantação
 
@@ -284,11 +284,11 @@ Mantenha os testes de recuperação e remoção em ambiente apropriado e use o m
 
 Eventos e métricas RDS ajudam a investigar disponibilidade, conexões, CPU e armazenamento. API e Lambda registram falhas PostgreSQL nos próprios logs/traces; a configuração Datadog pertence à aplicação. Consulte o [diagnóstico de conectividade e credenciais](docs/TROUBLESHOOTING.md#conectividade-e-credencial-gerenciada) e o [guia de observabilidade da API](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/OBSERVABILIDADE.md).
 
-## Encerramento
+## Executando destroy
 
 `deletion_protection=true` impede a remoção da instância e `skip_final_snapshot=false` exige snapshot final. O identificador é `oficina-ENV-postgres-final`; um snapshot existente com o mesmo nome precisa ser tratado antes de outra destruição.
 
-O [procedimento de encerramento](docs/EXECUCAO-LAB-AWS.md#encerramento) reúne a ordem de remoção, a desativação intencional da proteção e a conferência dos backups.
+O [procedimento de destroy](docs/EXECUCAO-LAB-AWS.md#executando-destroy) reúne a ordem de remoção, a desativação intencional da proteção e a conferência dos backups.
 
 Remova autenticação e consumidores antes do RDS, e o banco antes da VPC. Snapshots preservados podem permanecer após a instância.
 

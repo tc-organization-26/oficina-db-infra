@@ -28,7 +28,7 @@ Para produção, altere o ambiente para `prod` e confira a conta antes de prosse
 - [Dependências e provisionamento RDS](#dependências-e-provisionamento-rds)
 - [Conectividade e credencial gerenciada](#conectividade-e-credencial-gerenciada)
 - [Schema, migrations e dados](#schema-migrations-e-dados)
-- [Backup, restauração e encerramento](#backup-restauração-e-encerramento)
+- [Backup, restauração e destroy](#backup-restauração-e-destroy)
 
 ## Credenciais AWS e GitHub Actions
 
@@ -190,7 +190,7 @@ Confira eventos e métricas RDS (conexões, CPU, memória disponível, armazenam
 
 O armazenamento cresce automaticamente até `max_allocated_storage` (100 GiB por padrão); esse teto não é espaço garantido ilimitado. Revise o plano ao alterar limites/classe e considere os efeitos nos consumidores. Não remova dados de negócio como tentativa de corrigir indisponibilidade.
 
-## Backup, restauração e encerramento
+## Backup, restauração e destroy
 
 ### Backup não aparece ou uma restauração não é usada pela API
 
@@ -198,7 +198,7 @@ Confira retenção configurada (7 dias por padrão), estado dos backups e snapsh
 
 ### Destroy é recusado por deletion protection
 
-A proteção é habilitada por padrão. Para uma remoção intencional, preserve o backup necessário, aplique `deletion_protection=false` com o mesmo backend e depois revise o plano de destruição. Siga o [encerramento](EXECUCAO-LAB-AWS.md#encerramento). Desativar proteção no console sem reconciliar o código pode ser revertido por outro apply.
+A proteção é habilitada por padrão. Para uma remoção intencional, preserve o backup necessário, aplique `deletion_protection=false` com o mesmo backend e depois revise o plano de destruição. Siga o [procedimento de destroy](EXECUCAO-LAB-AWS.md#executando-destroy). Desativar proteção no console sem reconciliar o código pode ser revertido por outro apply.
 
 ### Snapshot final já existe ou remoção da VPC falha
 
