@@ -88,6 +88,12 @@ Prepare o [checklist de acessos e configurações](docs/EXECUCAO-LAB-AWS.md#chec
 
 Conclua primeiro bootstrap e plataforma Kubernetes/rede no mesmo ambiente. O workflow valida, planeja e aplica o banco, sem executar SQL de negócio. Autenticação e API usam os dados publicados no SSM; a API cria as tabelas quando o Flyway inicia.
 
+### Acompanhamento dos deploys
+
+Consulte os [Deployments deste repositório](https://github.com/tc-organization-26/oficina-db-infra/deployments) para acompanhar as implantações de homologação e produção. O resumo da execução do workflow também informa o ambiente implantado.
+
+O RDS possui endpoint privado e não oferece URL pública de acesso. Consulte o output `database_endpoint` ou o parâmetro `/oficina/ENV/database/endpoint` no SSM e conecte-se a partir de um workload autorizado na VPC.
+
 ## Arquitetura
 
 ```mermaid
@@ -178,8 +184,7 @@ Principais características da instância:
 Este repositório provisiona infraestrutura e não expõe uma API de negócio própria. A documentação e as requisições da aplicação consumidora estão disponíveis em:
 
 - [Swagger local da Oficina API](http://localhost:8081/swagger-ui/index.html), após iniciar a aplicação.
-- [Collection Insomnia da Oficina API](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/src/main/resources/insomnia/collection.yaml).
-- [Collection Insomnia do login por CPF](https://github.com/tc-organization-26/oficina-auth-lambda/blob/HEAD/docs/insomnia/collection.json).
+- [Collection Insomnia](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/src/main/resources/insomnia/collection.yaml): inclui o login por CPF da Lambda (`POST /auth/login`) e os fluxos de negócio da API.
 
 ## Estrutura do repositório
 
