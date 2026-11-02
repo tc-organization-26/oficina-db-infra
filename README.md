@@ -90,7 +90,7 @@ Conclua primeiro bootstrap e plataforma Kubernetes/rede no mesmo ambiente. O wor
 
 ### Acompanhamento dos deploys
 
-Consulte os [Deployments deste repositório](https://github.com/tc-organization-26/oficina-db-infra/deployments) para acompanhar as implantações de homologação e produção. O resumo da execução do workflow também informa o ambiente implantado.
+Consulte as [execuções do Actions](https://github.com/tc-organization-26/oficina-db-infra/actions) para acompanhar as implantações de homologação e produção. O resumo da execução do workflow também informa o ambiente implantado.
 
 O RDS possui endpoint privado e não oferece URL pública de acesso. Consulte o output `database_endpoint` ou o parâmetro `/oficina/ENV/database/endpoint` no SSM e conecte-se a partir de um workload autorizado na VPC.
 
