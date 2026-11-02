@@ -2,6 +2,34 @@
 
 Terraform do RDS PostgreSQL privado, rede do banco, backups, criptografia e credencial gerenciada no Secrets Manager. Depende da rede publicada por oficina-k8s-infra. As tabelas são criadas pelo Flyway da API, não por este Terraform.
 
+## Contexto e objetivo
+
+Clientes, veículos, peças e ordens de serviço precisam manter seus vínculos ao longo de diagnóstico, aprovação, execução e entrega. A perda desse histórico compromete o atendimento, o controle do estoque e a rastreabilidade do orçamento e do pagamento.
+
+Este componente entrega a persistência PostgreSQL gerenciada e privada para a solução. A API grava os dados e executa migrations; a Lambda de login consulta o cliente ativo por CPF. O banco permanece fora do ciclo de vida dos Pods, com armazenamento criptografado, backups e controles de acesso pela rede.
+
+## Navegação
+
+- [Valor para o projeto](#valor-para-o-projeto)
+- [Documentação e guias](#índice-da-documentação)
+- [Execução e deploy](#execução-e-deploy)
+- [Arquitetura](#arquitetura)
+- [Dados e fluxo de atendimento](#dados-e-fluxo-de-atendimento)
+- [Disponibilidade e recuperação](#disponibilidade-e-recuperação)
+- [Caminho da implantação](#caminho-da-implantação)
+- [Variáveis Terraform](#variáveis-terraform)
+- [Validação integrada](#validação-integrada)
+- [Troubleshooting](#troubleshooting)
+
+## Valor para o projeto
+
+- persistência centralizada para clientes, veículos, serviços, estoque, orçamentos e OS;
+- integridade referencial e transações usadas pela aplicação nas operações do domínio;
+- acesso privado por Security Groups da API e da Lambda de login;
+- credencial master gerenciada pelo RDS e armazenada no Secrets Manager;
+- backups automáticos, proteção contra exclusão e snapshot final;
+- endpoint e contratos publicados no SSM para implantações reproduzíveis.
+
 ## Responsabilidades deste repositório
 
 - consumir a rede privada e o Security Group dos nós EKS publicados pela plataforma;
@@ -83,6 +111,42 @@ Consulte os [recursos principais](#recursos-principais) deste componente. A [arq
 A API no EKS e a Lambda de login acessam o mesmo RDS privado por regras de Security Group distintas. O Secrets Manager mantém a credencial gerenciada. A API executa o Flyway; a Lambda consulta `cliente` para autenticação. A [visão de componentes](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/ARQUITETURA-SOLUCAO.md#diagrama-de-componentes-da-aplicação) mostra essas conexões.
 
 O banco é um serviço gerenciado RDS; não utiliza contêiner, Dockerfile ou PVC Kubernetes.
+
+## Dados e fluxo de atendimento
+
+| Etapa da oficina | Participação da persistência |
+| --- | --- |
+| Identificação | Mantém cliente, CPF/CNPJ e veículos vinculados; a Lambda consulta cliente ativo no login |
+| Abertura da OS | Registra ordem, cliente, veículo e orçamento inicial |
+| Diagnóstico e orçamento | Mantém diagnóstico, itens de serviço, peças e estado do orçamento |
+| Aprovação e execução | Persiste decisão e transições da OS; a API controla as regras de avanço e revisão |
+| Estoque | Mantém quantidades e dados usados pelas operações de inclusão e baixa da API |
+| Pagamento e entrega | Persiste confirmação interna de pagamento e datas/status do atendimento |
+| Acompanhamento | Disponibiliza dados para consulta individual, histórico de status e tempo médio de execução |
+
+As tabelas e as regras não são criadas pelo Terraform deste componente. O [modelo relacional](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/modelo-relacional/README.md) documenta schema, relações e migrations, e o [fluxo de atendimento](https://github.com/tc-organization-26/gestao-oficina-tc-1#fluxo-de-atendimento) descreve o uso pela oficina.
+
+## Disponibilidade e recuperação
+
+O padrão `multi_az=false` cria a instância sem standby Multi-AZ. O subnet group abrange sub-redes de duas zonas, mas isso não ativa redundância do banco. HPA e Cluster Autoscaler da API também não escalam a capacidade de processamento do RDS.
+
+O armazenamento começa em 20 GiB e pode crescer até 100 GiB por padrão. Esse crescimento não substitui o dimensionamento da classe da instância, das conexões e das consultas. Para maior disponibilidade, avalie `multi_az=true` e a classe adequada ao ambiente, conforme o [exemplo de configuração](#variáveis-terraform).
+
+Backups automáticos têm retenção padrão de sete dias. A proteção contra exclusão fica habilitada e a remoção intencional exige tratar o snapshot final, seguindo o [guia de encerramento](docs/EXECUCAO-AWS.md#encerramento). Backups oferecem recuperação de dados; não equivalem a failover. O [troubleshooting](docs/TROUBLESHOOTING.md) orienta diagnóstico e recuperação, que devem ser validados para o ambiente utilizado.
+
+## Caminho da implantação
+
+```text
+Bootstrap e plataforma prontos no mesmo ambiente
+  → ler VPC, sub-redes privadas e Security Group do EKS pelo SSM
+  → Terraform plan/apply do subnet group, SG e RDS
+  → publicar endpoint, porta, nome, SG e ARN da credencial no SSM
+  → autenticação acrescentar acesso da Lambda e publicar login/Authorizer
+  → API iniciar, executar Flyway e criar as tabelas e dados iniciais
+  → validar login e operações de negócio
+```
+
+O sucesso do apply comprova a criação da infraestrutura; tabelas e login dependem do startup da API. As esteiras são independentes e devem ser executadas em sequência conforme o [guia AWS](docs/EXECUCAO-AWS.md).
 
 ## Recursos principais
 
@@ -202,6 +266,16 @@ As [variáveis e migrations da API](https://github.com/tc-organization-26/gestao
 Confirme a instância em `available` e os parâmetros do ambiente no SSM, conforme o [roteiro de validação](docs/EXECUCAO-AWS.md#validar-o-banco). Os outputs são `database_endpoint`, `database_port`, `database_name` e `master_secret_arn`.
 
 Teste a conexão a partir de um workload autorizado na VPC/EKS. Depois do startup da API, o readiness verifica também o banco. Uma instância disponível ainda pode estar sem tabelas se o Flyway não tiver concluído.
+
+## Validação integrada
+
+1. Confirme a instância disponível, os parâmetros SSM e o ARN do secret conforme a [validação do banco](docs/EXECUCAO-AWS.md#validar-o-banco).
+2. Implante a API e confirme a conclusão das migrations Flyway e o readiness com `status=UP`.
+3. Teste o login por CPF pela Lambda após o seed de cliente ativo.
+4. Execute o [roteiro de validação do atendimento](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/VALIDACAO-FLUXO.md), consultando a OS criada e sua evolução até a entrega.
+5. Para validar persistência após um novo rollout da API, consulte pelo ID uma ordem criada anteriormente; recriar Pods não deve apagar os dados do RDS.
+
+Mantenha os testes de recuperação e remoção em ambiente apropriado e use o mesmo state do componente. O RDS não precisa receber acesso público para validar as operações da aplicação.
 
 ## Observabilidade
 
