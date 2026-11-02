@@ -10,8 +10,20 @@ Este componente entrega a persistência PostgreSQL gerenciada e privada para a s
 
 ## Navegação
 
+Os guias abaixo complementam este README com instruções de execução, configuração e diagnóstico.
+
+**Guias e documentos complementares**
+
+- [Instalação das ferramentas](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/INSTALACAO-FERRAMENTAS.md) — instalar ferramentas e conferir o ambiente.
+- [Conta AWS comum](https://github.com/tc-organization-26/oficina-k8s-infra/blob/HEAD/docs/CONTA-AWS-COMUM.md) — preparar IAM, OIDC e adaptar a execução fora do Academy.
+- [Validação local e execução manual](docs/VALIDACAO-E-EXECUCAO-MANUAL.md) — validação e execução pelo terminal.
+- [Execução no laboratório AWS](docs/EXECUCAO-LAB-AWS.md) — checklist GitHub, dependências, deploy e encerramento.
+- [Tecnologias e versões](docs/VERSOES.md) — tecnologias, ferramentas, versões e fontes.
+- [Troubleshooting](docs/TROUBLESHOOTING.md) — diagnóstico por assunto e recuperação.
+
+**Seções deste README**
+
 - [Valor para o projeto](#valor-para-o-projeto)
-- [Documentação e guias](#índice-da-documentação)
 - [Execução e deploy](#execução-e-deploy)
 - [Arquitetura](#arquitetura)
 - [Dados e fluxo de atendimento](#dados-e-fluxo-de-atendimento)
@@ -38,15 +50,6 @@ Este componente entrega a persistência PostgreSQL gerenciada e privada para a s
 - manter proteção contra exclusão e snapshot final para remoção intencional;
 - delegar a geração e manutenção da senha master ao Secrets Manager;
 - publicar endpoint, porta, nome do banco, Security Group e ARN da credencial no SSM.
-
-## Índice da documentação
-
-| Assunto | Documento |
-| --- | --- |
-| Validação e execução pelo terminal | [Validação local e execução manual](docs/VALIDACAO-E-EXECUCAO-MANUAL.md) |
-| Checklist GitHub, dependências, deploy e encerramento | [Execução na AWS](docs/EXECUCAO-AWS.md) |
-| Tecnologias, ferramentas, versões e fontes | [Tecnologias e versões](docs/VERSOES.md) |
-| Diagnóstico por assunto e recuperação | [Troubleshooting](docs/TROUBLESHOOTING.md) |
 
 ## Repositórios da solução
 
@@ -77,9 +80,9 @@ Consulte o [guia de validação local e execução manual](docs/VALIDACAO-E-EXEC
 
 Este repositório não cria PostgreSQL local. Para desenvolvimento, use o Compose da aplicação. Executar Terraform no computador continua provisionando RDS na AWS.
 
-### Deploy e execução na AWS
+### Deploy e execução no laboratório AWS
 
-Prepare o [checklist de acessos e configurações](docs/EXECUCAO-AWS.md#checklist-inicial) e conclua as dependências na [ordem de implantação](docs/EXECUCAO-AWS.md#ordem-da-primeira-implantação). Faça o merge para `homologacao` para disparar o deploy em `hom` e aguarde a conclusão. Para produção, use `main` após validar homologação. **Run workflow é uma alternativa ou reexecução**, não um passo obrigatório após o merge.
+Prepare o [checklist de acessos e configurações](docs/EXECUCAO-LAB-AWS.md#checklist-inicial) e conclua as dependências na [ordem de implantação](docs/EXECUCAO-LAB-AWS.md#ordem-da-primeira-implantação). Faça o merge para `homologacao` para disparar o deploy em `hom` e aguarde a conclusão. Para produção, use `main` após validar homologação. **Run workflow é uma alternativa ou reexecução**, não um passo obrigatório após o merge.
 
 > O código contém adaptações educacionais de IAM e credenciais. Confira a observação do guia AWS antes de utilizá-lo em outra conta.
 
@@ -132,7 +135,7 @@ O padrão `multi_az=false` cria a instância sem standby Multi-AZ. O subnet grou
 
 O armazenamento começa em 20 GiB e pode crescer até 100 GiB por padrão. Esse crescimento não substitui o dimensionamento da classe da instância, das conexões e das consultas. Para maior disponibilidade, avalie `multi_az=true` e a classe adequada ao ambiente, conforme o [exemplo de configuração](#variáveis-terraform).
 
-Backups automáticos têm retenção padrão de sete dias. A proteção contra exclusão fica habilitada e a remoção intencional exige tratar o snapshot final, seguindo o [guia de encerramento](docs/EXECUCAO-AWS.md#encerramento). Backups oferecem recuperação de dados; não equivalem a failover. O [troubleshooting](docs/TROUBLESHOOTING.md) orienta diagnóstico e recuperação, que devem ser validados para o ambiente utilizado.
+Backups automáticos têm retenção padrão de sete dias. A proteção contra exclusão fica habilitada e a remoção intencional exige tratar o snapshot final, seguindo o [guia de encerramento](docs/EXECUCAO-LAB-AWS.md#encerramento). Backups oferecem recuperação de dados; não equivalem a failover. O [troubleshooting](docs/TROUBLESHOOTING.md) orienta diagnóstico e recuperação, que devem ser validados para o ambiente utilizado.
 
 ## Caminho da implantação
 
@@ -146,7 +149,7 @@ Bootstrap e plataforma prontos no mesmo ambiente
   → validar login e operações de negócio
 ```
 
-O sucesso do apply comprova a criação da infraestrutura; tabelas e login dependem do startup da API. As esteiras são independentes e devem ser executadas em sequência conforme o [guia AWS](docs/EXECUCAO-AWS.md).
+O sucesso do apply comprova a criação da infraestrutura; tabelas e login dependem do startup da API. As esteiras são independentes e devem ser executadas em sequência conforme o [guia AWS](docs/EXECUCAO-LAB-AWS.md).
 
 ## Recursos principais
 
@@ -263,13 +266,13 @@ As [variáveis e migrations da API](https://github.com/tc-organization-26/gestao
 
 ## Validação após o deploy
 
-Confirme a instância em `available` e os parâmetros do ambiente no SSM, conforme o [roteiro de validação](docs/EXECUCAO-AWS.md#validar-o-banco). Os outputs são `database_endpoint`, `database_port`, `database_name` e `master_secret_arn`.
+Confirme a instância em `available` e os parâmetros do ambiente no SSM, conforme o [roteiro de validação](docs/EXECUCAO-LAB-AWS.md#validar-o-banco). Os outputs são `database_endpoint`, `database_port`, `database_name` e `master_secret_arn`.
 
 Teste a conexão a partir de um workload autorizado na VPC/EKS. Depois do startup da API, o readiness verifica também o banco. Uma instância disponível ainda pode estar sem tabelas se o Flyway não tiver concluído.
 
 ## Validação integrada
 
-1. Confirme a instância disponível, os parâmetros SSM e o ARN do secret conforme a [validação do banco](docs/EXECUCAO-AWS.md#validar-o-banco).
+1. Confirme a instância disponível, os parâmetros SSM e o ARN do secret conforme a [validação do banco](docs/EXECUCAO-LAB-AWS.md#validar-o-banco).
 2. Implante a API e confirme a conclusão das migrations Flyway e o readiness com `status=UP`.
 3. Teste o login por CPF pela Lambda após o seed de cliente ativo.
 4. Execute o [roteiro de validação do atendimento](https://github.com/tc-organization-26/gestao-oficina-tc-1/blob/HEAD/docs/VALIDACAO-FLUXO.md), consultando a OS criada e sua evolução até a entrega.
@@ -285,7 +288,7 @@ Eventos e métricas RDS ajudam a investigar disponibilidade, conexões, CPU e ar
 
 `deletion_protection=true` impede a remoção da instância e `skip_final_snapshot=false` exige snapshot final. O identificador é `oficina-ENV-postgres-final`; um snapshot existente com o mesmo nome precisa ser tratado antes de outra destruição.
 
-O [procedimento de encerramento](docs/EXECUCAO-AWS.md#encerramento) reúne a ordem de remoção, a desativação intencional da proteção e a conferência dos backups.
+O [procedimento de encerramento](docs/EXECUCAO-LAB-AWS.md#encerramento) reúne a ordem de remoção, a desativação intencional da proteção e a conferência dos backups.
 
 Remova autenticação e consumidores antes do RDS, e o banco antes da VPC. Snapshots preservados podem permanecer após a instância.
 
@@ -296,7 +299,7 @@ Remova autenticação e consumidores antes do RDS, e o banco antes da VPC. Snaps
 
 ### Fluxo de branches
 
-`fase-3` valida e abre PR para `homologacao`; `homologacao` faz deploy em `hom` e abre PR para `main`; `main` faz deploy em `prod`. Os merges são manuais. Executar manualmente em `fase-3` também só valida. Consulte [branches e ambientes](docs/EXECUCAO-AWS.md#branches-e-ambientes).
+`fase-3` valida e abre PR para `homologacao`; `homologacao` faz deploy em `hom` e abre PR para `main`; `main` faz deploy em `prod`. Os merges são manuais. Executar manualmente em `fase-3` também só valida. Consulte [branches e ambientes](docs/EXECUCAO-LAB-AWS.md#branches-e-ambientes).
 
 ## Troubleshooting
 

@@ -1,6 +1,6 @@
 # Troubleshooting — oficina-db-infra
 
-[README](../README.md) · [Validação local e execução manual](VALIDACAO-E-EXECUCAO-MANUAL.md) · [Execução na AWS](EXECUCAO-AWS.md)
+[README](../README.md) · [Validação local e execução manual](VALIDACAO-E-EXECUCAO-MANUAL.md) · [Execução no laboratório AWS](EXECUCAO-LAB-AWS.md)
 
 ## Troubleshooting de outros repositórios da solução
 
@@ -19,7 +19,7 @@ $env:AWS_DEFAULT_REGION = $oficinaRegion
 aws sts get-caller-identity
 ```
 
-Para produção, altere o ambiente para `prod` e confira a conta antes de prosseguir. As credenciais do GitHub não configuram o terminal; o [guia AWS](EXECUCAO-AWS.md#credenciais-e-ferramentas) explica os pré-requisitos de acesso. Ao compartilhar evidências, informe ambiente, horário, URL/caminho, status HTTP, ID do workflow e mensagem de erro. Remova tokens, senhas e valores de secrets dos trechos compartilhados.
+Para produção, altere o ambiente para `prod` e confira a conta antes de prosseguir. As credenciais do GitHub não configuram o terminal; o [guia AWS](EXECUCAO-LAB-AWS.md#credenciais-e-ferramentas) explica os pré-requisitos de acesso. Ao compartilhar evidências, informe ambiente, horário, URL/caminho, status HTTP, ID do workflow e mensagem de erro. Remova tokens, senhas e valores de secrets dos trechos compartilhados.
 
 ## Assuntos
 
@@ -198,7 +198,7 @@ Confira retenção configurada (7 dias por padrão), estado dos backups e snapsh
 
 ### Destroy é recusado por deletion protection
 
-A proteção é habilitada por padrão. Para uma remoção intencional, preserve o backup necessário, aplique `deletion_protection=false` com o mesmo backend e depois revise o plano de destruição. Siga o [encerramento](EXECUCAO-AWS.md#encerramento). Desativar proteção no console sem reconciliar o código pode ser revertido por outro apply.
+A proteção é habilitada por padrão. Para uma remoção intencional, preserve o backup necessário, aplique `deletion_protection=false` com o mesmo backend e depois revise o plano de destruição. Siga o [encerramento](EXECUCAO-LAB-AWS.md#encerramento). Desativar proteção no console sem reconciliar o código pode ser revertido por outro apply.
 
 ### Snapshot final já existe ou remoção da VPC falha
 
